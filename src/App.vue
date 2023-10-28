@@ -1,6 +1,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { ITodo } from "@/interface/ITodo"
+import { ITodo } from "./interface/ITodo"
 import AppHeader from "./components/AppHeader.vue"
 import AppFilters from "./components/AppFilters.vue"
 import AppTodoList from "./components/AppTodoList.vue"
@@ -26,6 +26,47 @@ export default defineComponent({
         { id: 1, text: 'Погулять с собакой', completed: false }
       ]
     }
+  },
+  methods: {
+    toggleTodo(id: Number) {
+      const todo = this.todos.find((todo: ITodo) => todo.id == id)
+
+      if (todo) {
+        todo.completed = !todo.completed
+      }
+    },
+    deleteTodo(id: Number) {
+      this.todos = this.todos.filter((todo: ITodo) => {
+        return todo.id !== id
+      })
+    },
+    addTodo(todo: ITodo) {
+      this.todos = [...this.todos, todo]
+    }
+  },
+  computed: {
+    countDoneTodo() {
+      let doneTodo = 0
+
+      for(let i = 0; i < this.todos.length; i++) {
+        if(this.todos[i].completed == true) {
+          doneTodo += 1
+        }
+      }
+
+      return doneTodo
+    },
+    countDoTodo() {
+      let doTodo = 0
+
+      for(let i = 0; i < this.todos.length; i++) {
+        if(this.todos[i].completed == false) {
+          doTodo += 1
+        }
+      }
+
+      return doTodo
+    }
   }
 })
 
@@ -38,13 +79,13 @@ export default defineComponent({
 
   <main class="app-main">
 
-    <AppTodoList :todos="todos" />
+    <AppTodoList :todos="todos" @toggle-todo="toggleTodo" @delete-todo="deleteTodo" />
 
-    <AppAddTodo />
+    <AppAddTodo @add-todo="addTodo" />
 
   </main>
 
-  <AppFooter />
+  <AppFooter :doneTodo="countDoneTodo" :doTodo="countDoTodo" />
 </template>
 
 <style>
@@ -150,7 +191,6 @@ button {
   font-size: 1.6rem;
   border: 0.1rem solid var(--light-color);
   border-radius: 1.6rem;
-  background: #f0f0f0;
 }
 
 .text-input--focus {
@@ -161,6 +201,9 @@ button {
   flex-grow: 1;
   padding: 0;
   border: none;
+  background: #f0f0f0;
+  font-size: 16px;
+  color: #000000;
 }
 
 .text-input .input:focus {
